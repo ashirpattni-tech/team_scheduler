@@ -14,13 +14,11 @@ import {
   useSources,
   useSourceMutations,
 } from '../data/hooks'
-import { useApp } from '../app/context'
 import type { CalendarSource, SourceType } from '../lib/types'
 import { formatDistanceToNow } from 'date-fns'
 import { toDate } from '../lib/date'
 
 export function SourcesPage() {
-  const { mode } = useApp()
   const { data: children = [] } = useChildren()
   const { data: sources = [] } = useSources()
   const { create, remove, sync } = useSourceMutations()
@@ -60,14 +58,6 @@ export function SourcesPage() {
           </Button>
         }
       />
-
-      {mode === 'local' && (
-        <p className="mx-5 mt-3 rounded-xl bg-amber-50 px-4 py-3 text-xs text-amber-700">
-          Heads up: in local mode the browser fetches the feed directly, which
-          many calendar hosts block. Calendar import works reliably once you
-          connect the cloud backend (Supabase), which fetches feeds server-side.
-        </p>
-      )}
 
       {error && (
         <p className="mx-5 mt-3 rounded-xl bg-slate-100 px-4 py-3 text-xs text-slate-600">

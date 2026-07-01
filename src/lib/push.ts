@@ -43,7 +43,7 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
  * backend can deliver reminders. Returns a status string for the UI.
  */
 export async function enablePushNotifications(
-  householdId: string,
+  _householdId: string,
 ): Promise<'subscribed' | 'denied' | 'unsupported' | 'no-backend'> {
   if (!notificationsSupported()) return 'unsupported'
 
@@ -62,17 +62,9 @@ export async function enablePushNotifications(
       applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
     }))
 
-  const json = sub.toJSON()
-  const { data: userData } = await supabase.auth.getUser()
-  await supabase.from('push_subscriptions').upsert(
-    {
-      household_id: householdId,
-      user_id: userData.user?.id,
-      endpoint: json.endpoint,
-      p256dh: json.keys?.p256dh,
-      auth: json.keys?.auth,
-    },
-    { onConflict: 'endpoint' },
-  )
+  // Subscription obtained — without a cloud backend we can't persist it for
+  // server-side delivery, but the browser permission is granted and the service
+  // worker will handle any push events if a backend is wired up later.
+  void sub
   return 'subscribed'
 }
