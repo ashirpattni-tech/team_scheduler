@@ -20,7 +20,7 @@ const LEAD_OPTIONS = [
 ]
 
 export function SettingsPage() {
-  const { household, displayName } = useApp()
+  const { mode, household, user, signOut } = useApp()
   const { data: prefs } = useReminderPrefs()
   const savePrefs = useReminderMutation()
   const [pushStatus, setPushStatus] = useState<string | null>(null)
@@ -29,10 +29,11 @@ export function SettingsPage() {
     if (!household) return
     const result = await enablePushNotifications(household.id)
     const messages: Record<string, string> = {
-      subscribed: 'Notifications are on for this device.',
+      subscribed: 'Notifications are on for this device. 🎉',
       denied: 'Notifications were blocked. Enable them in your browser settings.',
       unsupported: "This browser doesn't support push notifications.",
-      'no-backend': 'Permission granted — notifications work once deployed over HTTPS.',
+      'no-backend':
+        'Permission granted. Connect the cloud backend (Supabase + VAPID key) to deliver reminders in the background.',
     }
     setPushStatus(messages[result])
   }
@@ -63,7 +64,8 @@ export function SettingsPage() {
               <button
                 key={o.value}
                 onClick={() =>
-                  prefs && savePrefs.mutate({ ...prefs, default_minutes: o.value })
+                  prefs &&
+                  savePrefs.mutate({ ...prefs, default_minutes: o.value })
                 }
                 className={
                   'rounded-xl border py-2 text-sm font-semibold transition ' +
@@ -101,30 +103,74 @@ export function SettingsPage() {
           )}
         </Section>
 
-        {/* Account */}
-        <Section title="Account">
-          <p className="mb-3 text-sm text-slate-500">Signed in as <b>{displayName}</b></p>
-          <Button
-            variant="danger"
-            onClick={() => {
-              if (confirm('Reset wipes all data on this device. Continue?')) {
-                resetLocal()
-                location.reload()
-              }
-            }}
-            className="w-full"
-          >
-            Reset all data
-          </Button>
+        {/* Sharing */}
+        <Section title="Sharing">
+          {mode === 'supabase' ? (
+            <>
+              <p className="text-sm text-slate-600">
+                Share this code with your co-parent so they can join{' '}
+                <b>{household?.name}</b> and see the same schedule:
+              </p>
+              <div className="mt-2 rounded-xl bg-slate-100 px-4 py-3 text-center text-2xl font-extrabold tracking-widest text-slate-800">
+                {household?.invite_code}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-slate-600">
+              You're in <b>local mode</b> — data lives only on this device. To
+              share the schedule with a co-parent across phones, connect the
+              cloud backend (see the README). Your invite code will be{' '}
+              <b>{household?.invite_code}</b>.
+            </p>
+          )}
         </Section>
 
-        <p className="pb-4 text-center text-xs text-slate-400">Team Scheduler</p>
+        {/* Account */}
+        <Section title="Account">
+          <div className="mb-3 text-sm text-slate-500">
+            {mode === 'supabase'
+              ? `Signed in as ${user?.email ?? user?.name}`
+              : `Local profile: ${user?.name}`}
+          </div>
+          {mode === 'supabase' ? (
+            <Button variant="ghost" onClick={signOut} className="w-full">
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              variant="danger"
+              onClick={() => {
+                if (
+                  confirm(
+                    'Reset wipes all local data on this device. Continue?',
+                  )
+                ) {
+                  resetLocal()
+                  location.reload()
+                }
+              }}
+              className="w-full"
+            >
+              Reset local data
+            </Button>
+          )}
+        </Section>
+
+        <p className="pb-4 text-center text-xs text-slate-400">
+          Team Scheduler · {mode === 'supabase' ? 'Cloud sync' : 'Local mode'}
+        </p>
       </div>
     </>
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
   return (
     <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
       <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
@@ -135,7 +181,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
   return (
     <button
       onClick={() => onChange(!checked)}

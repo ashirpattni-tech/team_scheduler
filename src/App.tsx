@@ -6,7 +6,11 @@ import { SchedulePage } from './pages/SchedulePage'
 import { ChildrenPage } from './pages/ChildrenPage'
 import { SourcesPage } from './pages/SourcesPage'
 import { SettingsPage } from './pages/SettingsPage'
-import { SetupPage } from './pages/Onboarding'
+import {
+  LocalSetupPage,
+  LoginPage,
+  HouseholdSetupPage,
+} from './pages/Onboarding'
 
 const qc = new QueryClient()
 
@@ -33,7 +37,9 @@ function AppRoutes() {
     )
   }
 
-  if (status === 'needs-setup') return <SetupPage />
+  if (status === 'needs-local-setup') return <LocalSetupPage />
+  if (status === 'needs-auth') return <LoginPage />
+  if (status === 'needs-household') return <HouseholdSetupPage />
 
   return (
     <Routes>
