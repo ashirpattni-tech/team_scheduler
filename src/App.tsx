@@ -2,6 +2,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppProvider, useApp } from './app/context'
 import { Layout } from './components/Layout'
+import { InstallBanner } from './components/InstallBanner'
 import { SchedulePage } from './pages/SchedulePage'
 import { ChildrenPage } from './pages/ChildrenPage'
 import { SourcesPage } from './pages/SourcesPage'
@@ -19,6 +20,7 @@ export default function App() {
     <QueryClientProvider client={qc}>
       <HashRouter>
         <AppProvider>
+          <InstallBanner />
           <AppRoutes />
         </AppProvider>
       </HashRouter>

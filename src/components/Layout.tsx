@@ -1,9 +1,7 @@
-import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { classNames } from '../lib/util'
-import { CalendarIcon, UsersIcon, SyncIcon, SettingsIcon, CloseIcon } from './icons'
+import { CalendarIcon, UsersIcon, SyncIcon, SettingsIcon } from './icons'
 import type { ReactNode } from 'react'
-import { useInstallPrompt } from '../hooks/useInstallPrompt'
 
 const tabs = [
   { to: '/', label: 'Schedule', Icon: CalendarIcon, end: true },
@@ -15,7 +13,6 @@ const tabs = [
 export function Layout() {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col bg-slate-50">
-      <InstallBanner />
       <main className="flex-1 pb-24">
         <Outlet />
       </main>
@@ -40,53 +37,6 @@ export function Layout() {
           ))}
         </div>
       </nav>
-    </div>
-  )
-}
-
-function InstallBanner() {
-  const { state, install } = useInstallPrompt()
-  const [dismissed, setDismissed] = useState(false)
-
-  if (dismissed || state === 'installed' || state === 'unsupported') return null
-
-  return (
-    <div className="sticky top-0 z-40 mx-auto w-full max-w-md bg-brand px-4 py-3 text-white shadow-md">
-      <div className="flex items-center gap-3">
-        <div className="flex-1">
-          {state === 'android' ? (
-            <>
-              <p className="text-sm font-semibold">Install Team Scheduler</p>
-              <p className="text-xs text-blue-100">Add to your home screen for quick access</p>
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-semibold">Add to Home Screen</p>
-              <p className="text-xs text-blue-100">
-                Tap the <span className="font-bold">Share</span> icon below, then{' '}
-                <span className="font-bold">Add to Home Screen</span>
-              </p>
-            </>
-          )}
-        </div>
-
-        {state === 'android' && (
-          <button
-            onClick={install}
-            className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-bold text-brand"
-          >
-            Install
-          </button>
-        )}
-
-        <button
-          onClick={() => setDismissed(true)}
-          className="shrink-0 rounded-full p-1 text-white/70 hover:bg-white/20"
-          aria-label="Dismiss"
-        >
-          <CloseIcon width={18} height={18} />
-        </button>
-      </div>
     </div>
   )
 }
