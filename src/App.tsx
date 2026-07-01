@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppProvider, useApp } from './app/context'
 import { Layout } from './components/Layout'
@@ -17,11 +17,11 @@ const qc = new QueryClient()
 export default function App() {
   return (
     <QueryClientProvider client={qc}>
-      <BrowserRouter>
+      <HashRouter>
         <AppProvider>
           <AppRoutes />
         </AppProvider>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   )
 }
